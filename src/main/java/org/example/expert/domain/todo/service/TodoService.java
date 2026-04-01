@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +49,44 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public Page<TodoResponse> getTodos(int page, int size, String weather,
+                                       LocalDateTime startDate, LocalDateTime endDate) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        Page<Todo> todos;
+
+        if (weather != null && startDate != null && endDate != null) {
+            // weather + 시작일 + 종료일
+            todos = todoRepository.findByWeatherAndDateRange(weather, startDate, endDate, pageable);
+        } else if (weather != null && startDate != null) {
+            // weather + 시작일
+            todos = todoRepository.findByWeatherAndStartDate(weather, startDate, pageable);
+
+        } else if (weather != null && endDate != null) {
+            // weather + 종료일
+            todos = todoRepository.findByWeatherAndEndDate(weather, endDate, pageable);
+
+        } else if (weather != null) {
+            // weather만
+            todos = todoRepository.findByWeather(weather, pageable);
+
+        } else if (startDate != null && endDate != null) {
+            // 시작일 + 종료일
+            todos = todoRepository.findByDateRange(startDate, endDate, pageable);
+
+        } else if (startDate != null) {
+            // 시작일만
+            todos = todoRepository.findByStartDate(startDate, pageable);
+
+        } else if (endDate != null) {
+            // 종료일만
+            todos = todoRepository.findByEndDate(endDate, pageable);
+
+        } else {
+            // 조건 없으면 전체 조회
+            todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        }
+
 
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
