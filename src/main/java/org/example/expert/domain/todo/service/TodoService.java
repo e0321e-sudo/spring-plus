@@ -7,6 +7,7 @@ import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
+import org.example.expert.domain.todo.dto.response.TodoSearchResponse;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
@@ -14,6 +15,7 @@ import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -114,5 +116,22 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         );
+    }
+
+    // 검색 메서드
+    public Page<TodoSearchResponse> searchTodos(
+            int page,
+            int size,
+            String title,              // 제목 키워드
+            LocalDateTime startDate,   // 생성일 시작
+            LocalDateTime endDate,     // 생성일 끝
+            String nickname            // 담당자 닉네임
+    ) {
+        // 페이지 설정 (1페이지부터 시작하도록 -1)
+        Pageable pageable = PageRequest.of(page -1, size);
+
+        // Repository의 QueryDSL 검색 메서드 호출
+        return todoRepository.searchTodos(
+                title, startDate, endDate, nickname, pageable);
     }
 }

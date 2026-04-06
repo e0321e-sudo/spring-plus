@@ -10,6 +10,9 @@ import org.example.expert.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,6 +24,16 @@ public class UserService {
     public UserResponse getUser(long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new InvalidRequestException("User not found"));
         return new UserResponse(user.getId(), user.getEmail());
+    }
+
+    // 닉네임으로 유저 검색
+    public List<UserResponse> getUsersByNickname(String nickname) {
+        List<User> users = userRepository.findByNickname(nickname);
+
+        // User 리스트를 UserResponse 리스트로 반환
+        return users.stream()
+                .map(user -> new UserResponse(user.getId(), user.getEmail()))
+                .collect(Collectors.toList());
     }
 
     @Transactional

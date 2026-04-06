@@ -9,6 +9,8 @@ import org.example.expert.domain.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -18,6 +20,14 @@ public class UserController {
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable long userId) {
         return ResponseEntity.ok(userService.getUser(userId));
+    }
+
+    // 닉네임 정확히 일치해야 검색 가능
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponse>> getUsersByNickname(
+            @RequestBody String nickname
+    ) {
+        return ResponseEntity.ok(userService.getUsersByNickname(nickname));
     }
 
     @PutMapping("/users")
