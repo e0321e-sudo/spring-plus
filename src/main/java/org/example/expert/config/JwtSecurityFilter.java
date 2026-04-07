@@ -37,7 +37,7 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         String url = request.getRequestURI();
 
         // /auth 경로는 인증 없이 통과
-        if (url.startsWith("/auth")) {
+        if (url.startsWith("/auth") || url.equals("/health")) {
             chain.doFilter(request, response);
             return;
         }
